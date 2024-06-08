@@ -1,16 +1,16 @@
 import threading
 import socket
 import ssl
+import getpass
 
 hostname = 'timechat.aptans.cloud'
-hostname = 'localhost';
+hostname = 'localhost'
 
 def main():
   context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
   context.load_verify_locations('certs/ca-cert.pem')
   # Cria um objeto de soquete para o cliente
   client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
   try:
       # Tenta se conectar ao servidor na porta 7777
       sclient = context.wrap_socket(client, server_hostname=hostname)
@@ -25,7 +25,11 @@ def main():
 
   # Solicita ao usuário inserir um nome de usuário
   username = input('Usuário> ')
+  senha = getpass.getpass('Senha> ')
   print('\nConectado')
+
+  sclient.send(username.encode('utf-8'))
+  sclient.send(senha.encode('utf-8'))
 
 
   # Cria duas threads para lidar com a recepção e envio de mensagens simultaneamente
@@ -44,11 +48,16 @@ def receiveMessages(client):
       try:
           # Recebe uma mensagem codificada em UTF-8 e a decodifica
           msg = client.recv(2048).decode('utf-8')
+
+          if msg == '':
+             client.close()
+             return
+          
           # Exibe a mensagem recebida
-          print(msg+'\n')
+          print(f'\b{msg}\n>', end='')
       except:
           # Se houver um erro ao receber mensagens, exibe uma mensagem e encerra a conexão
-          print('\nNão foi possível permanecer conectado no servidor!\n')
+          print('\nNão foi possível permanecer conectado no servidor!')
           print('Pressione <Enter> Para continuar...')
           client.close()
           break
@@ -59,9 +68,10 @@ def sendMessages(client, username):
   while True:
       try:
           # Solicita ao usuário inserir uma mensagem
-          msg = input('\n')
+          msg = input('>')
+
           # Envia a mensagem formatada com o nome de usuário ao servidor
-          client.send(f'<{username}> {msg}'.encode('utf-8'))
+          client.send(f'{msg}'.encode('utf-8'))
       except:
           # Se houver um erro ao enviar mensagens, encerra a thread
           return

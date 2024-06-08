@@ -2,15 +2,32 @@ import threading
 import socket
 import ssl
 
+usuarios = {
+    'flavio': 'secret123',
+    'fontes': 'secret456'
+}
+
 # Lista de clientes conectados ao servidor
 clients = []
 
 # Função para lidar com as mensagens de um cliente
 def handle_client(client):
+    username = bytes.decode(client.recv(2048))
+    senha = bytes.decode(client.recv(2048))
+
+    senha_correta = username in usuarios and usuarios[username] == senha
+    if not senha_correta:
+        client.send('Usuário ou senha incorreta'.encode('utf-8'))
+        client.shutdown(socket.SHUT_RDWR)
+        client.close()
+        remove_client(client)
+        return
+
     while True:
         try:
             msg = client.recv(2048)
-            broadcast(msg, client)
+            if msg != '':
+                broadcast(f'<{username}>: {msg}'.encode('utf-8'), client)
         except:
             remove_client(client)
             break
