@@ -25,7 +25,7 @@ def handle_client(client):
 
     while True:
         try:
-            msg = client.recv(2048)
+            msg = bytes.decode(client.recv(2048), 'utf-8')
             if msg != '':
                 broadcast(f'<{username}>: {msg}'.encode('utf-8'), client)
         except:

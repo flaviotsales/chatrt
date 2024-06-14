@@ -34,7 +34,7 @@ def main():
 
   # Cria duas threads para lidar com a recepção e envio de mensagens simultaneamente
   thread1 = threading.Thread(target=receiveMessages, args=[sclient])
-  thread2 = threading.Thread(target=sendMessages, args=[sclient, username])
+  thread2 = threading.Thread(target=sendMessages, args=[sclient])
 
 
   # Inicia as threads
@@ -63,7 +63,7 @@ def receiveMessages(client):
           break
 
 
-def sendMessages(client, username):
+def sendMessages(client):
   # Loop para enviar mensagens para o servidor
   while True:
       try:
