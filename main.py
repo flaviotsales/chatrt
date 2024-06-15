@@ -1,10 +1,11 @@
 import threading
 import socket
 import ssl
+import os
 import getpass
 
 hostname = 'timechat.aptans.cloud'
-hostname = 'localhost'
+hostname = 'chat.flaviosales.dev'
 
 def main():
   context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
@@ -18,7 +19,6 @@ def main():
       sclient.connect((hostname, 7777))
       
   except Exception as e:
-      print(e)
       # Se não conseguir se conectar, exibe uma mensagem e encerra o programa
       return print('\nNão foi possível se conectar ao servidor!\n')
 
@@ -51,7 +51,7 @@ def receiveMessages(client):
 
           if msg == '':
              client.close()
-             return
+             os._exit(0)
           
           # Exibe a mensagem recebida
           print(f'\b{msg}\n>', end='')
@@ -69,10 +69,16 @@ def sendMessages(client):
       try:
           # Solicita ao usuário inserir uma mensagem
           msg = input('>')
+          if msg == '\\quit':
+             client.close()
+             os._exit(0)
 
           # Envia a mensagem formatada com o nome de usuário ao servidor
           client.send(f'{msg}'.encode('utf-8'))
       except:
+          print('Ocorreu um erro!')
+          client.close()
+          os._exit(0)
           # Se houver um erro ao enviar mensagens, encerra a thread
           return
 
