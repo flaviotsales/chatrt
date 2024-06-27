@@ -30,6 +30,7 @@ def handle_client(client):
                 broadcast(f'<{username}>: {msg}'.encode('utf-8'), client)
         except:
             remove_client(client)
+            client.close()
             break
 
 # Função para transmitir mensagens para todos os clientes
